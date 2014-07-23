@@ -279,10 +279,10 @@ std::vector<std::string> reader::retrieve(const char *query)
         retrieve_thru(dbr, query, this->measure, this->threshold, std::back_inserter(ret));
         break;
     case 2:
-        retrieve_iconv<uint16_t>(dbr, query, UTF16, this->measure, this->threshold, std::back_inserter(ret));
+      throw std::runtime_error("UTF16 not supported in OSX python bindings because of libc++ incompatibility");
         break;
     case 4:
-        retrieve_iconv<uint32_t>(dbr, query, UTF32, this->measure, this->threshold, std::back_inserter(ret));
+      throw std::runtime_error("UTF32 not supported in OSX python bindings because of libc++ incompatibility");
         break;
     }
 
@@ -296,18 +296,8 @@ bool reader::check(const char *query)
     if (dbr.char_size() == 1) {
         std::string qstr = query;
         return dbr.check(qstr, translate_measure(this->measure), this->threshold);
-    } else if (dbr.char_size() == 2) {
-        std::basic_string<uint16_t> qstr;
-        iconv_t fwd = iconv_open(UTF16, "UTF-8");
-        iconv_convert(fwd, std::string(query), qstr);
-        iconv_close(fwd);
-        return dbr.check(qstr, translate_measure(this->measure), this->threshold);
-    } else if (dbr.char_size() == 4) {
-        std::basic_string<uint32_t> qstr;
-        iconv_t fwd = iconv_open(UTF32, "UTF-8");
-        iconv_convert(fwd, std::string(query), qstr);
-        iconv_close(fwd);
-        return dbr.check(qstr, translate_measure(this->measure), this->threshold);
+    } else {
+      throw std::runtime_error("UTF16/32 not supported in OSX python bindings because of libc++ incompatibility");
     }
     
     return false;
